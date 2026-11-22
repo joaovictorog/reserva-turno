@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { saveReservations } from '../src/reservas/armazenamento';
+import { loadReservations, saveReservations } from '../src/reservas/armazenamento';
 import { createReservation } from '../src/reservas/reserva';
 
 const input = {
@@ -17,6 +17,15 @@ function consult(date = input.date) {
     .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 }
 
+function book() {
+  document.querySelector<HTMLInputElement>('#date-filter')!.value = input.date;
+  document.querySelector<HTMLInputElement>('[name="owner"]')!.value = input.owner;
+  document.querySelector<HTMLInputElement>('[name="startTime"]')!.value = '10:00';
+  document.querySelector<HTMLInputElement>('[name="endTime"]')!.value = '11:00';
+  document.querySelector<HTMLFormElement>('#booking-form')!
+    .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+}
+
 beforeEach(async () => {
   vi.resetModules();
   localStorage.clear();
@@ -27,8 +36,47 @@ beforeEach(async () => {
     </form>
     <p id="agenda-status"></p>
     <div id="reservation-list"></div>
+    <form id="booking-form">
+      <input name="owner">
+      <input name="startTime" type="time">
+      <input name="endTime" type="time">
+    </form>
+    <p id="booking-status"></p>
   `;
   await import('../src/main');
+});
+
+describe('cadastro na tela', () => {
+  it('salva a reserva e atualiza a agenda exibida', () => {
+    book();
+    expect(loadReservations(localStorage)).toEqual([
+      { ...input, id: expect.any(String) },
+    ]);
+    expect(document.querySelector('#booking-status')!.textContent).toBe('Reserva confirmada.');
+    expect(document.querySelector('#reservation-list')!.textContent).toContain('João');
+    expect(document.querySelector<HTMLInputElement>('[name="owner"]')!.value).toBe('');
+  });
+
+  it('mantém os campos preenchidos quando há conflito', () => {
+    saveReservations(localStorage, [createReservation(input)]);
+    book();
+    expect(document.querySelector('#booking-status')!.textContent).toContain('já está reservada');
+    expect(document.querySelector<HTMLInputElement>('[name="owner"]')!.value).toBe('João');
+    expect(loadReservations(localStorage)).toHaveLength(1);
+  });
+
+  it('informa falhas inesperadas de persistência', () => {
+    const failure = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw 'Falha';
+    });
+    try {
+      book();
+      expect(document.querySelector('#booking-status')!.textContent)
+        .toBe('Não foi possível salvar a reserva.');
+    } finally {
+      failure.mockRestore();
+    }
+  });
 });
 
 describe('consulta na tela', () => {

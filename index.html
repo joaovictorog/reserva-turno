@@ -18,6 +18,16 @@
         <label>Data<input type="date" name="date" id="date-filter" required></label>
         <button type="submit">Consultar</button>
       </form>
+      <section aria-labelledby="booking-title">
+        <h2 id="booking-title">Reservar na sala e data selecionadas</h2>
+        <form class="filters" id="booking-form">
+          <label>Responsável<input name="owner" required autocomplete="name"></label>
+          <label>Início<input name="startTime" type="time" required></label>
+          <label>Término<input name="endTime" type="time" required></label>
+          <button type="submit">Reservar</button>
+        </form>
+        <p id="booking-status" role="status"></p>
+      </section>
       <section aria-label="Agenda da sala">
         <h2>Agenda</h2>
         <p id="agenda-status" role="status">Selecione uma sala e uma data para consultar.</p>

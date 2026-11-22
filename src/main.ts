@@ -2,8 +2,9 @@ import './style.css';
 import { rooms } from './reservas/salas';
 import { loadReservations } from './reservas/armazenamento';
 import { listReservations } from './reservas/agenda';
-import { formatTime } from './reservas/horario';
+import { formatTime, parseTime } from './reservas/horario';
 import { isValidDate } from './reservas/data';
+import { reserveRoom } from './reservas/servico';
 
 const roomFilter = document.querySelector<HTMLSelectElement>('#room-filter')!;
 roomFilter.replaceChildren(...rooms.map((room) =>
@@ -14,8 +15,7 @@ const dateFilter = document.querySelector<HTMLInputElement>('#date-filter')!;
 const status = document.querySelector<HTMLParagraphElement>('#agenda-status')!;
 const reservationList = document.querySelector<HTMLDivElement>('#reservation-list')!;
 
-filters.addEventListener('submit', (event) => {
-  event.preventDefault();
+function renderAgenda() {
   reservationList.replaceChildren();
   if (!isValidDate(dateFilter.value)) {
     status.textContent = 'Selecione uma data válida.';
@@ -36,5 +36,34 @@ filters.addEventListener('submit', (event) => {
       : `${reservations.length} reserva(s) encontrada(s).`;
   } catch {
     status.textContent = 'Não foi possível carregar a agenda. Verifique os dados salvos e tente novamente.';
+  }
+}
+
+filters.addEventListener('submit', (event) => {
+  event.preventDefault();
+  renderAgenda();
+});
+
+const bookingForm = document.querySelector<HTMLFormElement>('#booking-form')!;
+const bookingStatus = document.querySelector<HTMLParagraphElement>('#booking-status')!;
+
+bookingForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const fields = new FormData(bookingForm);
+  try {
+    reserveRoom(localStorage, {
+      roomId: roomFilter.value,
+      date: dateFilter.value,
+      owner: String(fields.get('owner')),
+      startMinute: parseTime(String(fields.get('startTime'))),
+      endMinute: parseTime(String(fields.get('endTime'))),
+    });
+    bookingStatus.textContent = 'Reserva confirmada.';
+    bookingForm.reset();
+    renderAgenda();
+  } catch (error) {
+    bookingStatus.textContent = error instanceof Error
+      ? error.message
+      : 'Não foi possível salvar a reserva.';
   }
 });
