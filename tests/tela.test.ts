@@ -28,6 +28,8 @@ function book() {
 }
 
 beforeEach(async () => {
+  vi.restoreAllMocks();
+  vi.spyOn(window, 'confirm').mockReturnValue(true);
   vi.resetModules();
   localStorage.clear();
   document.body.innerHTML = `
@@ -81,6 +83,24 @@ describe('cadastro na tela', () => {
 });
 
 describe('cancelamento na tela', () => {
+  it('identifica a reserva antes de confirmar o cancelamento', () => {
+    book();
+
+    document.querySelector<HTMLButtonElement>('#reservation-list button')!.click();
+
+    expect(window.confirm).toHaveBeenCalledWith('Cancelar a reserva de João às 10:00?');
+  });
+
+  it('mantém a reserva quando o usuário desiste do cancelamento', () => {
+    book();
+    vi.mocked(window.confirm).mockReturnValue(false);
+
+    document.querySelector<HTMLButtonElement>('#reservation-list button')!.click();
+
+    expect(loadReservations(localStorage)).toHaveLength(1);
+    expect(document.querySelector('#reservation-list')!.textContent).toContain('João');
+  });
+
   it('remove a reserva da tela e do armazenamento', () => {
     book();
 

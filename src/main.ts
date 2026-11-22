@@ -37,6 +37,9 @@ function renderAgenda() {
       cancelButton.textContent = 'Cancelar';
       cancelButton.setAttribute('aria-label', `Cancelar reserva de ${reservation.owner} às ${formatTime(reservation.startMinute)}`);
       cancelButton.addEventListener('click', () => {
+        if (!window.confirm(`Cancelar a reserva de ${reservation.owner} às ${formatTime(reservation.startMinute)}?`)) {
+          return;
+        }
         try {
           cancelRoomReservation(localStorage, reservation.id);
           renderAgenda();
