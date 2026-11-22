@@ -21,10 +21,11 @@
         <label>Data<input type="date" name="date" id="date-filter" required></label>
         <button type="submit">Consultar</button>
       </form>
-      <section aria-labelledby="booking-title">
-        <h2 id="booking-title">Reservar na sala e data selecionadas</h2>
+      <div class="workspace">
+      <section class="booking-panel" aria-labelledby="booking-title">
+        <h2 id="booking-title">Nova reserva</h2>
         <form class="filters" id="booking-form">
-          <label>Responsável<input name="owner" required autocomplete="name"></label>
+          <label class="owner-field">Responsável<input name="owner" required autocomplete="name"></label>
           <label>Início<input name="startTime" type="time" required></label>
           <label>Término<input name="endTime" type="time" required></label>
           <button type="submit">Reservar</button>
@@ -32,11 +33,12 @@
         </form>
         <p id="booking-status" role="status"></p>
       </section>
-      <section aria-label="Agenda da sala">
+      <section class="agenda-panel" aria-label="Agenda da sala">
         <h2>Agenda</h2>
         <p id="agenda-status" role="status">Selecione uma sala e uma data para consultar.</p>
         <div id="reservation-list"></div>
       </section>
+      </div>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>
