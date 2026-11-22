@@ -27,6 +27,7 @@ export function listReservations(
   roomId: string,
   date: string,
 ): Reservation[] {
-  return reservations.filter((reservation) =>
-    reservation.roomId === roomId && reservation.date === date);
+  return reservations
+    .filter((reservation) => reservation.roomId === roomId && reservation.date === date)
+    .sort((first, second) => first.startMinute - second.startMinute);
 }

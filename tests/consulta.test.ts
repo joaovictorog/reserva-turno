@@ -32,6 +32,25 @@ describe('consulta da agenda', () => {
     expect(listReservations([], input.roomId, input.date)).toEqual([]);
   });
 
+  it('exibe reservas em ordem cronológica mesmo quando cadastradas fora de ordem', () => {
+    const morning = createReservation(input);
+    const afternoon = createReservation({ ...input, startMinute: 840, endMinute: 900 });
+    const evening = createReservation({ ...input, startMinute: 1080, endMinute: 1140 });
+
+    expect(listReservations([evening, morning, afternoon], input.roomId, input.date))
+      .toEqual([morning, afternoon, evening]);
+  });
+
+  it('preserva a ordem da coleção original ao ordenar os resultados', () => {
+    const morning = createReservation(input);
+    const afternoon = createReservation({ ...input, startMinute: 840, endMinute: 900 });
+    const reservations = Object.freeze([afternoon, morning]);
+
+    listReservations(reservations, input.roomId, input.date);
+
+    expect(reservations).toEqual([afternoon, morning]);
+  });
+
   it('retorna uma lista vazia quando nenhuma reserva corresponde', () => {
     expect(listReservations([createReservation(input)], 'auditorio', input.date))
       .toEqual([]);
