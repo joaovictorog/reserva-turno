@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isValidDate } from '../src/reservas/data';
+import { formatDate, isValidDate } from '../src/reservas/data';
 
 describe('data da reserva', () => {
   it('aceita uma data no formato ISO', () => {
@@ -39,4 +39,26 @@ describe('data da reserva', () => {
       expect(isValidDate(date)).toBe(false);
     },
   );
+});
+
+describe('exibição da data da reserva', () => {
+  it('exibe dia, mês e ano no formato brasileiro', () => {
+    expect(formatDate('2026-12-01')).toBe('01/12/2026');
+  });
+
+  it('preserva o dia bissexto na exibição', () => {
+    expect(formatDate('2028-02-29')).toBe('29/02/2028');
+  });
+
+  it('preserva os quatro dígitos do ano', () => {
+    expect(formatDate('0001-01-01')).toBe('01/01/0001');
+  });
+
+  it('rejeita uma data inexistente', () => {
+    expect(() => formatDate('2026-02-30')).toThrow('Informe uma data válida.');
+  });
+
+  it('rejeita entrada fora do formato ISO', () => {
+    expect(() => formatDate('01/12/2026')).toThrow('Informe uma data válida.');
+  });
 });

@@ -12,3 +12,12 @@ export function isValidDate(date: string): boolean {
     && parsed.getUTCMonth() === month - 1
     && parsed.getUTCDate() === day;
 }
+
+export function formatDate(date: string): string {
+  if (!isValidDate(date)) {
+    throw new Error('Informe uma data válida.');
+  }
+
+  const [year, month, day] = date.split('-');
+  return `${day}/${month}/${year}`;
+}
