@@ -14,7 +14,10 @@
     <main>
       <h1>Reservas</h1>
       <form class="filters" id="filters">
-        <label>Sala<select name="roomId" id="room-filter"></select></label>
+        <div class="field">
+          <label for="room-filter">Sala</label>
+          <select name="roomId" id="room-filter"></select>
+        </div>
         <label>Data<input type="date" name="date" id="date-filter" required></label>
         <button type="submit">Consultar</button>
       </form>
