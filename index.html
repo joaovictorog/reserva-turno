@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Agenda de reservas de salas por data e horário.">
+    <title>ReservaTurno</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="./">ReservaTurno</a>
+      <span>Agenda de salas</span>
+    </header>
+    <main>
+      <h1>Reservas</h1>
+      <form class="filters" id="filters">
+        <label>Sala<select name="roomId" id="room-filter"></select></label>
+        <label>Data<input type="date" name="date" id="date-filter" required></label>
+        <button type="submit">Consultar</button>
+      </form>
+      <section aria-label="Agenda da sala">
+        <h2>Agenda</h2>
+        <p id="agenda-status" role="status">Selecione uma sala e uma data para consultar.</p>
+        <div id="reservation-list"></div>
+      </section>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

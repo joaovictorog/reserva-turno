@@ -1,0 +1,39 @@
+:root {
+  font-family: Inter, Arial, sans-serif;
+  color: #202724;
+  background: #f5f7f6;
+  font-synthesis: none;
+  line-height: 1.5;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+button, input, select { font: inherit; }
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 32px;
+  border-bottom: 1px solid #d9e0dc;
+  background: white;
+}
+.brand { color: #176b4c; font-size: 20px; font-weight: 700; text-decoration: none; }
+.site-header span { color: #58685f; font-size: 14px; }
+main { max-width: 1040px; margin: 0 auto; padding: 32px 24px; }
+h1 { margin: 0 0 24px; font-size: 28px; }
+h2 { font-size: 20px; }
+.filters { display: flex; flex-wrap: wrap; align-items: end; gap: 16px; padding-bottom: 28px; }
+label { display: grid; gap: 6px; font-size: 14px; font-weight: 600; }
+input, select { min-height: 44px; padding: 8px 12px; background: white; border: 1px solid #9baea3; border-radius: 4px; }
+button { min-height: 44px; padding: 8px 20px; background: #176b4c; color: white; border: 0; border-radius: 4px; cursor: pointer; }
+button:hover { background: #105337; }
+:focus-visible { outline: 3px solid #cb8d1a; outline-offset: 3px; }
+section { border-top: 1px solid #d9e0dc; padding: 12px 0; }
+#agenda-status { color: #58685f; }
+@media (max-width: 560px) {
+  .site-header { padding: 16px; flex-wrap: wrap; }
+  main { padding: 24px 16px; }
+  .filters > * { width: 100%; }
+  input, select { width: 100%; min-width: 0; }
+}
