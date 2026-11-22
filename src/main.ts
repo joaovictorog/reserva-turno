@@ -4,7 +4,7 @@ import { loadReservations } from './reservas/armazenamento';
 import { listReservations } from './reservas/agenda';
 import { formatTime, parseTime } from './reservas/horario';
 import { isValidDate } from './reservas/data';
-import { reserveRoom } from './reservas/servico';
+import { cancelRoomReservation, reserveRoom } from './reservas/servico';
 
 const roomFilter = document.querySelector<HTMLSelectElement>('#room-filter')!;
 roomFilter.replaceChildren(...rooms.map((room) =>
@@ -27,8 +27,24 @@ function renderAgenda() {
       loadReservations(localStorage), roomFilter.value, dateFilter.value,
     );
     for (const reservation of reservations) {
-      const row = document.createElement('p');
-      row.textContent = `${formatTime(reservation.startMinute)} – ${formatTime(reservation.endMinute)} · ${reservation.owner}`;
+      const row = document.createElement('div');
+      row.className = 'reservation-row';
+      const details = document.createElement('span');
+      details.textContent = `${formatTime(reservation.startMinute)} – ${formatTime(reservation.endMinute)} · ${reservation.owner}`;
+      const cancelButton = document.createElement('button');
+      cancelButton.type = 'button';
+      cancelButton.textContent = 'Cancelar';
+      cancelButton.setAttribute('aria-label', `Cancelar reserva de ${reservation.owner} às ${formatTime(reservation.startMinute)}`);
+      cancelButton.addEventListener('click', () => {
+        try {
+          cancelRoomReservation(localStorage, reservation.id);
+          renderAgenda();
+          bookingStatus.textContent = 'Reserva cancelada.';
+        } catch {
+          bookingStatus.textContent = 'Não foi possível cancelar a reserva. Tente novamente.';
+        }
+      });
+      row.append(details, cancelButton);
       reservationList.append(row);
     }
     status.textContent = reservations.length === 0

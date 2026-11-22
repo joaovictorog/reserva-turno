@@ -31,6 +31,9 @@ button:hover { background: #105337; }
 :focus-visible { outline: 3px solid #cb8d1a; outline-offset: 3px; }
 section { border-top: 1px solid #d9e0dc; padding: 12px 0; }
 #agenda-status { color: #58685f; }
+.reservation-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px 0; border-bottom: 1px solid #d9e0dc; }
+.reservation-row span { overflow-wrap: anywhere; }
+.reservation-row button { background: white; color: #a12b35; border: 1px solid #d9e0dc; flex-shrink: 0; }
 @media (max-width: 560px) {
   .site-header { padding: 16px; flex-wrap: wrap; }
   main { padding: 24px 16px; }

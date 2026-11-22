@@ -79,6 +79,47 @@ describe('cadastro na tela', () => {
   });
 });
 
+describe('cancelamento na tela', () => {
+  it('remove a reserva da tela e do armazenamento', () => {
+    book();
+
+    document.querySelector<HTMLButtonElement>('#reservation-list button')!.click();
+
+    expect(loadReservations(localStorage)).toEqual([]);
+    expect(document.querySelector('#reservation-list')!.children).toHaveLength(0);
+    expect(document.querySelector('#booking-status')!.textContent).toBe('Reserva cancelada.');
+  });
+
+  it('cancela somente a reserva selecionada', () => {
+    saveReservations(localStorage, [
+      createReservation(input),
+      createReservation({ ...input, owner: 'Maria', startMinute: 660, endMinute: 720 }),
+    ]);
+    consult();
+
+    document.querySelector<HTMLButtonElement>('#reservation-list button')!.click();
+
+    expect(loadReservations(localStorage).map((reservation) => reservation.owner)).toEqual(['Maria']);
+    expect(document.querySelector('#reservation-list')!.textContent).toContain('Maria');
+  });
+
+  it('preserva a reserva exibida e informa falha quando a gravação é bloqueada', () => {
+    book();
+    const failure = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('Gravação bloqueada.');
+    });
+    try {
+      document.querySelector<HTMLButtonElement>('#reservation-list button')!.click();
+      expect(loadReservations(localStorage)).toHaveLength(1);
+      expect(document.querySelector('#reservation-list button')).not.toBeNull();
+      expect(document.querySelector('#booking-status')!.textContent)
+        .toContain('Não foi possível cancelar');
+    } finally {
+      failure.mockRestore();
+    }
+  });
+});
+
 describe('consulta na tela', () => {
   it('oferece o catálogo de salas no filtro', () => {
     expect(document.querySelectorAll('#room-filter option')).toHaveLength(3);
