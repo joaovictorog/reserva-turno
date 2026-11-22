@@ -14,3 +14,13 @@ export function parseTime(time: string): number {
   const [hours, minutes] = time.split(':').map(Number);
   return hours * 60 + minutes;
 }
+
+export function formatTime(minute: number): string {
+  if (!isValidMinute(minute)) {
+    throw new Error('Horário deve ser um minuto inteiro entre 0 e 1439.');
+  }
+
+  const hours = Math.floor(minute / 60).toString().padStart(2, '0');
+  const minutes = (minute % 60).toString().padStart(2, '0');
+  return `${hours}:${minutes}`;
+}

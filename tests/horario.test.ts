@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hasPositiveDuration, isValidMinute, parseTime } from '../src/reservas/horario';
+import { formatTime, hasPositiveDuration, isValidMinute, parseTime } from '../src/reservas/horario';
 
 describe('duração da reserva', () => {
   it('aceita um intervalo de um minuto', () => {
@@ -62,6 +62,27 @@ describe('conversão de horários', () => {
     'rejeita o horário inválido %j',
     (time) => {
       expect(() => parseTime(time)).toThrow('Horário deve estar no formato HH:mm');
+    },
+  );
+});
+
+describe('formatação de horários', () => {
+  it('exibe meia-noite com dois dígitos por campo', () => {
+    expect(formatTime(0)).toBe('00:00');
+  });
+
+  it('preenche minutos menores que dez com zero', () => {
+    expect(formatTime(545)).toBe('09:05');
+  });
+
+  it('exibe o último minuto do dia', () => {
+    expect(formatTime(1439)).toBe('23:59');
+  });
+
+  it.each([-1, 1440, 60.5, Number.NaN, Number.POSITIVE_INFINITY])(
+    'rejeita o valor inválido %j',
+    (minute) => {
+      expect(() => formatTime(minute)).toThrow('Horário deve ser um minuto inteiro');
     },
   );
 });
