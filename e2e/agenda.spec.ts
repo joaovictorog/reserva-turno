@@ -1,5 +1,33 @@
 import { expect, test } from '@playwright/test';
 
+test('cancela uma reserva confirmada e libera o horário', async ({ page }) => {
+  await page.goto('/');
+  await page.getByLabel('Data', { exact: true }).fill('2026-12-01');
+  await page.getByLabel('Responsável', { exact: true }).fill('João');
+  await page.getByLabel('Início', { exact: true }).fill('10:00');
+  await page.getByLabel('Término', { exact: true }).fill('11:00');
+  await page.getByRole('button', { name: 'Reservar', exact: true }).click();
+  await expect(page.getByText('Reserva confirmada.', { exact: true })).toBeVisible();
+
+  page.once('dialog', async (dialog) => {
+    expect(dialog.message()).toBe('Cancelar a reserva de João às 10:00?');
+    await dialog.accept();
+  });
+  await page.getByRole('button', { name: 'Cancelar reserva de João às 10:00', exact: true }).click();
+
+  await expect(page.getByText('Reserva cancelada.', { exact: true })).toBeVisible();
+  await expect(page.getByText('Nenhuma reserva para esta sala nesta data.')).toBeVisible();
+  await expect(page.getByRole('button', { name: /Cancelar reserva/ })).toHaveCount(0);
+
+  await page.getByLabel('Responsável', { exact: true }).fill('Maria');
+  await page.getByLabel('Início', { exact: true }).fill('10:00');
+  await page.getByLabel('Término', { exact: true }).fill('11:00');
+  await page.getByRole('button', { name: 'Reservar', exact: true }).click();
+
+  await expect(page.getByText('Reserva confirmada.', { exact: true })).toBeVisible();
+  await expect(page.getByText('10:00 – 11:00 · Maria', { exact: true })).toBeVisible();
+});
+
 test('filtra a agenda por sala e data', async ({ page }) => {
   await page.goto('/');
   await page.getByLabel('Data', { exact: true }).fill('2026-12-01');
