@@ -1,5 +1,24 @@
 import { expect, test } from '@playwright/test';
 
+test('recupera uma reserva após recarregar a página', async ({ page }) => {
+  await page.goto('/');
+  const date = await page.getByLabel('Data', { exact: true }).inputValue();
+  await page.getByLabel('Responsável', { exact: true }).fill('Maria Silva');
+  await page.getByLabel('Início', { exact: true }).fill('14:00');
+  await page.getByLabel('Término', { exact: true }).fill('15:00');
+  await page.getByRole('button', { name: 'Reservar', exact: true }).click();
+  await expect(page.getByText('Reserva confirmada.', { exact: true })).toBeVisible();
+
+  await page.reload();
+  await page.getByLabel('Data', { exact: true }).fill(date);
+  await page.getByRole('button', { name: 'Consultar', exact: true }).click();
+
+  await expect(page.getByText('14:00 – 15:00 · Maria Silva', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', {
+    name: 'Cancelar reserva de Maria Silva às 14:00', exact: true,
+  })).toHaveCount(1);
+});
+
 test('cancela uma reserva confirmada e libera o horário', async ({ page }) => {
   await page.goto('/');
   await page.getByLabel('Data', { exact: true }).fill('2026-12-01');
