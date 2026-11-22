@@ -2,6 +2,7 @@ import type { Reservation } from './reserva';
 import { isValidDate } from './data';
 import { isValidTimeRange } from './horario';
 import { findRoom } from './salas';
+import { reservationsOverlap } from './conflitos';
 
 export function saveReservations(
   storage: Pick<Storage, 'setItem'>,
@@ -36,6 +37,15 @@ export function loadReservations(storage: Pick<Storage, 'getItem'>): Reservation
   const reservations: unknown = JSON.parse(stored);
   if (!Array.isArray(reservations) || !reservations.every(isReservation)) {
     throw new Error('Os dados salvos da agenda são inválidos.');
+  }
+  const ids = new Set(reservations.map((reservation) => reservation.id));
+  if (ids.size !== reservations.length) {
+    throw new Error('A agenda salva contém identificadores duplicados.');
+  }
+  const hasConflict = reservations.some((reservation, index) =>
+    reservations.slice(0, index).some((previous) => reservationsOverlap(previous, reservation)));
+  if (hasConflict) {
+    throw new Error('A agenda salva contém reservas conflitantes.');
   }
   return reservations;
 }

@@ -64,4 +64,52 @@ describe('recuperação da agenda', () => {
     };
     expect(() => loadReservations(storage)).toThrow('Acesso bloqueado.');
   });
+
+  it('rejeita IDs duplicados mesmo em salas distintas', () => {
+    const stored = JSON.stringify([
+      reservation,
+      { ...reservation, roomId: 'sala-102' },
+    ]);
+    expect(() => loadReservations({ getItem: () => stored }))
+      .toThrow('A agenda salva contém identificadores duplicados.');
+  });
+
+  it('rejeita conflitos entre reservas com IDs distintos', () => {
+    const stored = JSON.stringify([
+      reservation,
+      { ...reservation, id: 'reserva-2', startMinute: 630, endMinute: 690 },
+    ]);
+    expect(() => loadReservations({ getItem: () => stored }))
+      .toThrow('A agenda salva contém reservas conflitantes.');
+  });
+
+  it('recupera reservas consecutivas na mesma sala', () => {
+    const reservations = [
+      reservation,
+      { ...reservation, id: 'reserva-2', startMinute: 660, endMinute: 720 },
+    ];
+    expect(loadReservations({ getItem: () => JSON.stringify(reservations) }))
+      .toEqual(reservations);
+  });
+
+  it('recupera reservas simultâneas em salas diferentes', () => {
+    const reservations = [
+      reservation,
+      { ...reservation, id: 'reserva-2', roomId: 'sala-102' },
+    ];
+    expect(loadReservations({ getItem: () => JSON.stringify(reservations) }))
+      .toEqual(reservations);
+  });
+
+  it('preserva o conteúdo salvo quando encontra um conflito', () => {
+    const data = new Map([[
+      'reserva-turno:reservations',
+      JSON.stringify([reservation, { ...reservation, id: 'reserva-2' }]),
+    ]]);
+    const stored = data.get('reserva-turno:reservations');
+    const storage = { getItem: (key: string) => data.get(key) ?? null };
+
+    expect(() => loadReservations(storage)).toThrow();
+    expect(data.get('reserva-turno:reservations')).toBe(stored);
+  });
 });
