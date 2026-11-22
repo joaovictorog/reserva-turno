@@ -1,8 +1,10 @@
 import type { ReservationInput } from './reserva';
 
+export type ReservationSlot = Omit<ReservationInput, 'owner'>;
+
 export function reservationsOverlap(
-  first: ReservationInput,
-  second: ReservationInput,
+  first: ReservationSlot,
+  second: ReservationSlot,
 ): boolean {
   return first.roomId === second.roomId
     && first.date === second.date

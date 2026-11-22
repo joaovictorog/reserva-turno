@@ -12,7 +12,8 @@ const reservation: ReservationInput = {
 
 describe('conflitos de reservas', () => {
   it('detecta horários idênticos na mesma sala e data', () => {
-    expect(reservationsOverlap(reservation, { ...reservation, owner: 'Maria' })).toBe(true);
+    const anotherReservation = { ...reservation, owner: 'Maria' };
+    expect(reservationsOverlap(reservation, anotherReservation)).toBe(true);
   });
 
   it('detecta sobreposição no início da reserva', () => {
