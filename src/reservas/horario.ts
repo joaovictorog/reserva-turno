@@ -6,6 +6,12 @@ export function isValidMinute(minute: number): boolean {
   return Number.isInteger(minute) && minute >= 0 && minute < 1440;
 }
 
+export function isValidTimeRange(startMinute: number, endMinute: number): boolean {
+  return isValidMinute(startMinute)
+    && isValidMinute(endMinute)
+    && hasPositiveDuration(startMinute, endMinute);
+}
+
 export function parseTime(time: string): number {
   if (!/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/.test(time)) {
     throw new Error('Horário deve estar no formato HH:mm entre 00:00 e 23:59.');
