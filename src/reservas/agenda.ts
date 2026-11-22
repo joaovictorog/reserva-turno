@@ -21,3 +21,12 @@ export function cancelReservation(
   }
   return reservations.filter((reservation) => reservation.id !== reservationId);
 }
+
+export function listReservations(
+  reservations: readonly Reservation[],
+  roomId: string,
+  date: string,
+): Reservation[] {
+  return reservations.filter((reservation) =>
+    reservation.roomId === roomId && reservation.date === date);
+}
