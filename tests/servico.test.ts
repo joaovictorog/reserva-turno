@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { reserveRoom } from '../src/reservas/servico';
+import { cancelRoomReservation, reserveRoom } from '../src/reservas/servico';
 import { loadReservations } from '../src/reservas/armazenamento';
 
 function createStorage() {
@@ -70,5 +70,60 @@ describe('agendamento persistente', () => {
 
     expect(() => reserveRoom(storage, input)).toThrow();
     expect(storage.getItem('reserva-turno:reservations')).toBe('{');
+  });
+});
+
+describe('cancelamento persistente', () => {
+  it('grava a agenda após remover uma reserva', () => {
+    const storage = createStorage();
+    const [reservation] = reserveRoom(storage, input);
+    const reservations = reserveRoom(storage, { ...input, roomId: 'sala-102' });
+
+    const result = cancelRoomReservation(storage, reservation.id);
+
+    expect(result).toEqual([reservations[1]]);
+    expect(loadReservations(storage)).toEqual(result);
+  });
+
+  it('grava uma agenda vazia ao cancelar a última reserva', () => {
+    const storage = createStorage();
+    const [reservation] = reserveRoom(storage, input);
+
+    expect(cancelRoomReservation(storage, reservation.id)).toEqual([]);
+    expect(loadReservations(storage)).toEqual([]);
+  });
+
+  it('mantém os dados salvos quando o identificador não existe', () => {
+    const storage = createStorage();
+    const previous = reserveRoom(storage, input);
+
+    expect(() => cancelRoomReservation(storage, 'inexistente'))
+      .toThrow('Reserva não encontrada.');
+    expect(loadReservations(storage)).toEqual(previous);
+  });
+
+  it('sinaliza falha de gravação e mantém a reserva armazenada', () => {
+    const storage = createStorage();
+    const [reservation] = reserveRoom(storage, input);
+    const unavailableStorage = {
+      getItem: storage.getItem,
+      setItem() { throw new Error('Gravação bloqueada.'); },
+    };
+
+    expect(() => cancelRoomReservation(unavailableStorage, reservation.id))
+      .toThrow('Gravação bloqueada.');
+    expect(loadReservations(storage)).toEqual([reservation]);
+  });
+
+  it('permite reservar novamente o horário após cancelamento salvo', () => {
+    const storage = createStorage();
+    const [reservation] = reserveRoom(storage, input);
+    cancelRoomReservation(storage, reservation.id);
+
+    const result = reserveRoom(storage, input);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].id).not.toBe(reservation.id);
+    expect(loadReservations(storage)).toEqual(result);
   });
 });
