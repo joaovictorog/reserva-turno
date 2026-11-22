@@ -26,3 +26,24 @@ test('cadastra uma reserva e exibe seus dados na agenda', async ({ page }) => {
   })).toBeVisible();
   await expect(page.getByLabel('Responsável', { exact: true })).toHaveValue('');
 });
+
+test('impede sobreposição e mantém a reserva original', async ({ page }) => {
+  await page.goto('/');
+  await page.getByLabel('Data', { exact: true }).fill('2026-12-01');
+  await page.getByLabel('Responsável', { exact: true }).fill('João');
+  await page.getByLabel('Início', { exact: true }).fill('10:00');
+  await page.getByLabel('Término', { exact: true }).fill('11:00');
+  await page.getByRole('button', { name: 'Reservar', exact: true }).click();
+  await expect(page.getByText('Reserva confirmada.', { exact: true })).toBeVisible();
+
+  await page.getByLabel('Responsável', { exact: true }).fill('Maria');
+  await page.getByLabel('Início', { exact: true }).fill('10:30');
+  await page.getByLabel('Término', { exact: true }).fill('11:30');
+  await page.getByRole('button', { name: 'Reservar', exact: true }).click();
+
+  await expect(page.getByText('A sala já está reservada nesse horário.', { exact: true })).toBeVisible();
+  const agenda = page.getByRole('region', { name: 'Agenda da sala', exact: true });
+  await expect(agenda.getByRole('button', { name: /Cancelar reserva/ })).toHaveCount(1);
+  await expect(agenda.getByText('10:00 – 11:00 · João', { exact: true })).toBeVisible();
+  await expect(page.getByLabel('Responsável', { exact: true })).toHaveValue('Maria');
+});
