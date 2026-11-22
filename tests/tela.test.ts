@@ -1,0 +1,78 @@
+// @vitest-environment jsdom
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { saveReservations } from '../src/reservas/armazenamento';
+import { createReservation } from '../src/reservas/reserva';
+
+const input = {
+  roomId: 'sala-101',
+  date: '2026-12-01',
+  owner: 'João',
+  startMinute: 600,
+  endMinute: 660,
+};
+
+function consult(date = input.date) {
+  document.querySelector<HTMLInputElement>('#date-filter')!.value = date;
+  document.querySelector<HTMLFormElement>('#filters')!
+    .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+}
+
+beforeEach(async () => {
+  vi.resetModules();
+  localStorage.clear();
+  document.body.innerHTML = `
+    <form id="filters">
+      <select id="room-filter"></select>
+      <input type="date" id="date-filter">
+    </form>
+    <p id="agenda-status"></p>
+    <div id="reservation-list"></div>
+  `;
+  await import('../src/main');
+});
+
+describe('consulta na tela', () => {
+  it('oferece o catálogo de salas no filtro', () => {
+    expect(document.querySelectorAll('#room-filter option')).toHaveLength(3);
+    expect(document.querySelector('#room-filter')!.textContent).toContain('Auditório');
+  });
+
+  it('exibe horários e responsável da reserva correspondente', () => {
+    saveReservations(localStorage, [createReservation(input)]);
+    consult();
+    expect(document.querySelector('#reservation-list')!.textContent)
+      .toContain('10:00 – 11:00 · João');
+  });
+
+  it('informa quando a consulta não encontra reservas', () => {
+    consult();
+    expect(document.querySelector('#agenda-status')!.textContent).toContain('Nenhuma reserva');
+  });
+
+  it('remove resultados antigos ao consultar outra data', () => {
+    saveReservations(localStorage, [createReservation(input)]);
+    consult();
+    consult('2026-12-02');
+    expect(document.querySelector('#reservation-list')!.children).toHaveLength(0);
+  });
+
+  it('solicita uma data antes de consultar', () => {
+    consult('');
+    expect(document.querySelector('#agenda-status')!.textContent).toContain('Selecione uma data válida');
+  });
+
+  it('informa erro ao encontrar dados corrompidos', () => {
+    localStorage.setItem('reserva-turno:reservations', '{');
+    consult();
+    expect(document.querySelector('#agenda-status')!.textContent).toContain('Não foi possível carregar');
+  });
+
+  it('exibe o nome do responsável como texto', () => {
+    saveReservations(localStorage, [createReservation({
+      ...input, owner: '<img src=x onerror=alert(1)>',
+    })]);
+    consult();
+    expect(document.querySelector('#reservation-list img')).toBeNull();
+    expect(document.querySelector('#reservation-list')!.textContent).toContain('<img');
+  });
+});
