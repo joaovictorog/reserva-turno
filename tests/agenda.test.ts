@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { scheduleReservation } from '../src/reservas/agenda';
+import { cancelReservation, scheduleReservation } from '../src/reservas/agenda';
 import { createReservation, type ReservationInput } from '../src/reservas/reserva';
 
 const input: ReservationInput = {
@@ -53,5 +53,53 @@ describe('agendamento de reservas', () => {
   it('valida os dados antes de incluir a reserva', () => {
     expect(() => scheduleReservation([], { ...input, owner: ' ' }))
       .toThrow('Informe o responsável pela reserva.');
+  });
+});
+
+describe('cancelamento de reservas', () => {
+  it('remove somente a reserva selecionada', () => {
+    const first = createReservation(input);
+    const second = createReservation({ ...input, roomId: 'sala-102' });
+
+    expect(cancelReservation([first, second], first.id)).toEqual([second]);
+  });
+
+  it('esvazia a agenda ao cancelar a única reserva', () => {
+    const reservation = createReservation(input);
+
+    expect(cancelReservation([reservation], reservation.id)).toEqual([]);
+  });
+
+  it('preserva a agenda original durante o cancelamento', () => {
+    const reservation = createReservation(input);
+    const reservations = Object.freeze([reservation]);
+
+    cancelReservation(reservations, reservation.id);
+
+    expect(reservations).toEqual([reservation]);
+  });
+
+  it('informa quando a reserva não existe', () => {
+    const reservations = [createReservation(input)];
+
+    expect(() => cancelReservation(reservations, 'inexistente'))
+      .toThrow('Reserva não encontrada.');
+    expect(reservations).toHaveLength(1);
+  });
+
+  it('rejeita cancelamento em uma agenda vazia', () => {
+    expect(() => cancelReservation([], 'inexistente'))
+      .toThrow('Reserva não encontrada.');
+  });
+
+  it('libera o horário para novo agendamento após cancelar', () => {
+    const reservation = createReservation(input);
+    const remaining = cancelReservation([reservation], reservation.id);
+
+    const result = scheduleReservation(remaining, input);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].id).not.toBe(reservation.id);
+    expect(result[0]).toMatchObject(input);
   });
 });

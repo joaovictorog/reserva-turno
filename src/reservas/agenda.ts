@@ -11,3 +11,13 @@ export function scheduleReservation(
   }
   return [...reservations, reservation];
 }
+
+export function cancelReservation(
+  reservations: readonly Reservation[],
+  reservationId: string,
+): Reservation[] {
+  if (!reservations.some((reservation) => reservation.id === reservationId)) {
+    throw new Error('Reserva não encontrada.');
+  }
+  return reservations.filter((reservation) => reservation.id !== reservationId);
+}
