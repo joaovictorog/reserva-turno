@@ -2,9 +2,10 @@ import './style.css';
 import { rooms } from './reservas/salas';
 import { loadReservations } from './reservas/armazenamento';
 import { listReservations } from './reservas/agenda';
-import { formatTime, parseTime } from './reservas/horario';
+import { formatTime, isValidTimeRange, parseTime } from './reservas/horario';
 import { getLocalDate, isValidDate } from './reservas/data';
 import { cancelRoomReservation, reserveRoom } from './reservas/servico';
+import { isRoomAvailable } from './reservas/disponibilidade';
 
 const roomFilter = document.querySelector<HTMLSelectElement>('#room-filter')!;
 roomFilter.replaceChildren(...rooms.map((room) =>
@@ -90,6 +91,27 @@ bookingForm.addEventListener('submit', (event) => {
     bookingStatus.textContent = error instanceof Error
       ? error.message
       : 'Não foi possível salvar a reserva.';
+  }
+});
+
+document.querySelector<HTMLButtonElement>('#check-availability')!.addEventListener('click', () => {
+  const fields = new FormData(bookingForm);
+  try {
+    const slot = {
+      roomId: roomFilter.value,
+      date: dateFilter.value,
+      startMinute: parseTime(String(fields.get('startTime'))),
+      endMinute: parseTime(String(fields.get('endTime'))),
+    };
+    if (!isValidDate(slot.date) || !isValidTimeRange(slot.startMinute, slot.endMinute)) {
+      bookingStatus.textContent = 'Informe uma data e um intervalo de horários válidos.';
+      return;
+    }
+    bookingStatus.textContent = isRoomAvailable(loadReservations(localStorage), slot)
+      ? 'Sala disponível neste horário.'
+      : 'Sala indisponível neste horário.';
+  } catch {
+    bookingStatus.textContent = 'Não foi possível verificar. Confira os horários e os dados salvos.';
   }
 });
 

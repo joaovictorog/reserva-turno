@@ -43,10 +43,44 @@ beforeEach(async () => {
       <input name="owner">
       <input name="startTime" type="time">
       <input name="endTime" type="time">
+      <button type="button" id="check-availability">Verificar disponibilidade</button>
     </form>
     <p id="booking-status"></p>
   `;
   await import('../src/main');
+});
+
+describe('disponibilidade na tela', () => {
+  function checkAvailability(startTime = '10:00', endTime = '11:00') {
+    document.querySelector<HTMLInputElement>('#date-filter')!.value = input.date;
+    document.querySelector<HTMLInputElement>('[name="startTime"]')!.value = startTime;
+    document.querySelector<HTMLInputElement>('[name="endTime"]')!.value = endTime;
+    document.querySelector<HTMLButtonElement>('#check-availability')!.click();
+  }
+
+  it('consulta disponibilidade sem exigir o nome do responsável ou criar reserva', () => {
+    checkAvailability();
+    expect(document.querySelector('#booking-status')!.textContent).toBe('Sala disponível neste horário.');
+    expect(loadReservations(localStorage)).toEqual([]);
+  });
+
+  it('informa quando o horário está ocupado', () => {
+    saveReservations(localStorage, [createReservation(input)]);
+    checkAvailability();
+    expect(document.querySelector('#booking-status')!.textContent).toBe('Sala indisponível neste horário.');
+  });
+
+  it('informa intervalo invertido', () => {
+    checkAvailability('11:00', '10:00');
+    expect(document.querySelector('#booking-status')!.textContent)
+      .toContain('Informe uma data e um intervalo');
+  });
+
+  it('solicita horários quando os campos estão vazios', () => {
+    checkAvailability('', '');
+    expect(document.querySelector('#booking-status')!.textContent)
+      .toContain('Não foi possível verificar');
+  });
 });
 
 describe('cadastro na tela', () => {
