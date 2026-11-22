@@ -121,6 +121,43 @@ describe('cancelamento na tela', () => {
 });
 
 describe('consulta na tela', () => {
+  it('atualiza os resultados ao trocar a sala', () => {
+    saveReservations(localStorage, [
+      createReservation(input),
+      createReservation({ ...input, roomId: 'sala-102', owner: 'Maria' }),
+    ]);
+    consult();
+    const roomFilter = document.querySelector<HTMLSelectElement>('#room-filter')!;
+
+    roomFilter.value = 'sala-102';
+    roomFilter.dispatchEvent(new Event('change', { bubbles: true }));
+
+    expect(document.querySelector('#reservation-list')!.textContent).toContain('Maria');
+    expect(document.querySelector('#reservation-list')!.textContent).not.toContain('João');
+  });
+
+  it('atualiza os resultados ao trocar a data', () => {
+    saveReservations(localStorage, [createReservation(input)]);
+    consult();
+    const dateFilter = document.querySelector<HTMLInputElement>('#date-filter')!;
+
+    dateFilter.value = '2026-12-02';
+    dateFilter.dispatchEvent(new Event('change', { bubbles: true }));
+
+    expect(document.querySelector('#reservation-list')!.children).toHaveLength(0);
+    expect(document.querySelector('#agenda-status')!.textContent).toContain('Nenhuma reserva');
+  });
+
+  it('limpa a confirmação anterior ao mudar o contexto da reserva', () => {
+    book();
+    const roomFilter = document.querySelector<HTMLSelectElement>('#room-filter')!;
+
+    roomFilter.value = 'sala-102';
+    roomFilter.dispatchEvent(new Event('change', { bubbles: true }));
+
+    expect(document.querySelector('#booking-status')!.textContent).toBe('');
+  });
+
   it('oferece o catálogo de salas no filtro', () => {
     expect(document.querySelectorAll('#room-filter option')).toHaveLength(3);
     expect(document.querySelector('#room-filter')!.textContent).toContain('Auditório');

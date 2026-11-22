@@ -63,6 +63,11 @@ filters.addEventListener('submit', (event) => {
 const bookingForm = document.querySelector<HTMLFormElement>('#booking-form')!;
 const bookingStatus = document.querySelector<HTMLParagraphElement>('#booking-status')!;
 
+filters.addEventListener('change', () => {
+  bookingStatus.textContent = '';
+  renderAgenda();
+});
+
 bookingForm.addEventListener('submit', (event) => {
   event.preventDefault();
   const fields = new FormData(bookingForm);
