@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDate, isValidDate } from '../src/reservas/data';
+import { formatDate, getLocalDate, isValidDate } from '../src/reservas/data';
 
 describe('data da reserva', () => {
   it('aceita uma data no formato ISO', () => {
@@ -60,5 +60,19 @@ describe('exibição da data da reserva', () => {
 
   it('rejeita entrada fora do formato ISO', () => {
     expect(() => formatDate('01/12/2026')).toThrow('Informe uma data válida.');
+  });
+});
+
+describe('data local da agenda', () => {
+  it('formata a data local perto da meia-noite', () => {
+    expect(getLocalDate(new Date(2026, 10, 22, 23, 59))).toBe('2026-11-22');
+  });
+
+  it('preenche dia e mês com zeros', () => {
+    expect(getLocalDate(new Date(2026, 0, 2))).toBe('2026-01-02');
+  });
+
+  it('acompanha a virada do ano local', () => {
+    expect(getLocalDate(new Date(2026, 11, 31, 24))).toBe('2027-01-01');
   });
 });

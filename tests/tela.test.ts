@@ -2,6 +2,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { loadReservations, saveReservations } from '../src/reservas/armazenamento';
 import { createReservation } from '../src/reservas/reserva';
+import { getLocalDate } from '../src/reservas/data';
 
 const input = {
   roomId: 'sala-101',
@@ -121,6 +122,11 @@ describe('cancelamento na tela', () => {
 });
 
 describe('consulta na tela', () => {
+  it('seleciona hoje e consulta a agenda ao abrir', () => {
+    expect(document.querySelector<HTMLInputElement>('#date-filter')!.value).toBe(getLocalDate());
+    expect(document.querySelector('#agenda-status')!.textContent).toContain('Nenhuma reserva');
+  });
+
   it('atualiza os resultados ao trocar a sala', () => {
     saveReservations(localStorage, [
       createReservation(input),

@@ -3,7 +3,7 @@ import { rooms } from './reservas/salas';
 import { loadReservations } from './reservas/armazenamento';
 import { listReservations } from './reservas/agenda';
 import { formatTime, parseTime } from './reservas/horario';
-import { isValidDate } from './reservas/data';
+import { getLocalDate, isValidDate } from './reservas/data';
 import { cancelRoomReservation, reserveRoom } from './reservas/servico';
 
 const roomFilter = document.querySelector<HTMLSelectElement>('#room-filter')!;
@@ -12,6 +12,7 @@ roomFilter.replaceChildren(...rooms.map((room) =>
 
 const filters = document.querySelector<HTMLFormElement>('#filters')!;
 const dateFilter = document.querySelector<HTMLInputElement>('#date-filter')!;
+dateFilter.value = getLocalDate();
 const status = document.querySelector<HTMLParagraphElement>('#agenda-status')!;
 const reservationList = document.querySelector<HTMLDivElement>('#reservation-list')!;
 
@@ -88,3 +89,5 @@ bookingForm.addEventListener('submit', (event) => {
       : 'Não foi possível salvar a reserva.';
   }
 });
+
+renderAgenda();

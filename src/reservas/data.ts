@@ -21,3 +21,10 @@ export function formatDate(date: string): string {
   const [year, month, day] = date.split('-');
   return `${day}/${month}/${year}`;
 }
+
+export function getLocalDate(date = new Date()): string {
+  const year = date.getFullYear().toString().padStart(4, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
