@@ -23,3 +23,37 @@ O ReservaTurno é uma aplicação web para gerenciar reservas de salas por data 
 - **Playwright** para os testes de ponta a ponta no Chromium.
 - **GitHub Actions** para executar os testes em Linux, macOS e Windows, e **Codecov** para publicar os relatórios de cobertura.
 - **Cloudflare Pages** como plataforma prevista para publicação manual da aplicação.
+
+## Instalação e execução local
+
+Use o Node.js 22, a mesma versão principal usada no GitHub Actions. Na raiz do repositório, execute:
+
+```bash
+npm ci
+npm run dev
+```
+
+Abra o endereço informado pelo Vite no terminal, normalmente `http://127.0.0.1:5173`.
+
+## Execução dos testes
+
+Execute os testes unitários com:
+
+```bash
+npm test
+```
+
+Para executar a suíte com cobertura e gerar o relatório em `coverage/index.html`, use:
+
+```bash
+npm run test:coverage
+```
+
+Para os testes de ponta a ponta, instale o Chromium do Playwright e execute:
+
+```bash
+npx playwright install chromium
+npm run test:e2e
+```
+
+No Linux, se faltarem bibliotecas do sistema, use `npx playwright install --with-deps chromium` na etapa de instalação. `npm run test:e2e` gera a versão de produção e o Playwright inicia automaticamente o servidor de prévia na porta `4173`.
