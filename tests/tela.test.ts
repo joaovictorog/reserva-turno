@@ -27,6 +27,12 @@ function book() {
     .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 }
 
+function editBookingField(name: string, value: string) {
+  const field = document.querySelector<HTMLInputElement>(`[name="${name}"]`)!;
+  field.value = value;
+  field.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
 beforeEach(async () => {
   vi.restoreAllMocks();
   vi.spyOn(window, 'confirm').mockReturnValue(true);
@@ -70,6 +76,16 @@ describe('disponibilidade na tela', () => {
     expect(document.querySelector('#booking-status')!.textContent).toBe('Sala indisponível neste horário.');
   });
 
+  it('limpa o resultado de disponibilidade ao editar o início', () => {
+    checkAvailability();
+    const status = document.querySelector('#booking-status')!;
+    expect(status.textContent).toBe('Sala disponível neste horário.');
+
+    editBookingField('startTime', '10:30');
+
+    expect(status.textContent).toBe('');
+  });
+
   it('informa intervalo invertido', () => {
     checkAvailability('11:00', '10:00');
     expect(document.querySelector('#booking-status')!.textContent)
@@ -84,6 +100,28 @@ describe('disponibilidade na tela', () => {
 });
 
 describe('cadastro na tela', () => {
+  it('limpa a confirmação ao editar o responsável', () => {
+    book();
+    const status = document.querySelector('#booking-status')!;
+    expect(status.textContent).toBe('Reserva confirmada.');
+
+    editBookingField('owner', 'Maria');
+
+    expect(status.textContent).toBe('');
+    expect(document.querySelector('#reservation-list')!.textContent).toContain('João');
+  });
+
+  it('limpa o erro de conflito ao editar o término', () => {
+    saveReservations(localStorage, [createReservation(input)]);
+    book();
+    const status = document.querySelector('#booking-status')!;
+    expect(status.textContent).toContain('já está reservada');
+
+    editBookingField('endTime', '11:30');
+
+    expect(status.textContent).toBe('');
+  });
+
   it('salva a reserva e atualiza a agenda exibida', () => {
     book();
     expect(loadReservations(localStorage)).toEqual([

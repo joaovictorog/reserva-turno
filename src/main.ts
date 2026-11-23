@@ -73,6 +73,10 @@ filters.addEventListener('change', () => {
   renderAgenda();
 });
 
+bookingForm.addEventListener('input', () => {
+  bookingStatus.textContent = '';
+});
+
 bookingForm.addEventListener('submit', (event) => {
   event.preventDefault();
   const fields = new FormData(bookingForm);
