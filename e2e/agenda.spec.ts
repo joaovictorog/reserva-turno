@@ -1,4 +1,33 @@
 import { expect, test } from '@playwright/test';
+import { reservationsKey } from '../src/reservas/armazenamento';
+
+for (const operation of ['removeItem', 'clear'] as const) {
+  test(`sincroniza a agenda entre abas ao salvar e limpar reservas com ${operation}`, async ({ page, context }) => {
+    const otherTab = await context.newPage();
+    await page.goto('/');
+    await otherTab.goto('/');
+    await page.getByLabel('Data', { exact: true }).fill('2026-12-01');
+    await otherTab.getByLabel('Data', { exact: true }).fill('2026-12-01');
+    await page.getByLabel('Responsável', { exact: true }).fill('João');
+    await page.getByLabel('Início', { exact: true }).fill('10:00');
+    await page.getByLabel('Término', { exact: true }).fill('11:00');
+    await page.getByRole('button', { name: 'Reservar', exact: true }).click();
+
+    const reservation = otherTab.getByText('10:00 – 11:00 · João', { exact: true });
+    await expect(reservation).toBeVisible();
+
+    await page.evaluate(({ operation, key }) => {
+      if (operation === 'clear') {
+        localStorage.clear();
+      } else {
+        localStorage.removeItem(key);
+      }
+    }, { operation, key: reservationsKey });
+
+    await expect(reservation).toHaveCount(0);
+    await expect(otherTab.getByText('Nenhuma reserva para esta sala nesta data.')).toBeVisible();
+  });
+}
 
 test('recupera uma reserva após recarregar a página', async ({ page }) => {
   await page.goto('/');

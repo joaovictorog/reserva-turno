@@ -1,6 +1,6 @@
 import './style.css';
 import { rooms } from './reservas/salas';
-import { loadReservations } from './reservas/armazenamento';
+import { loadReservations, reservationsKey } from './reservas/armazenamento';
 import { listReservations } from './reservas/agenda';
 import { formatTime, isValidTimeRange, parseTime } from './reservas/horario';
 import { getLocalDate, isValidDate } from './reservas/data';
@@ -112,6 +112,12 @@ document.querySelector<HTMLButtonElement>('#check-availability')!.addEventListen
       : 'Sala indisponível neste horário.';
   } catch {
     bookingStatus.textContent = 'Não foi possível verificar. Confira os horários e os dados salvos.';
+  }
+});
+
+window.addEventListener('storage', (event) => {
+  if (event.storageArea === localStorage && (event.key === reservationsKey || event.key === null)) {
+    renderAgenda();
   }
 });
 

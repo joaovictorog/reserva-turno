@@ -4,11 +4,13 @@ import { isValidTimeRange } from './horario';
 import { findRoom } from './salas';
 import { reservationsOverlap } from './conflitos';
 
+export const reservationsKey = 'reserva-turno:reservations';
+
 export function saveReservations(
   storage: Pick<Storage, 'setItem'>,
   reservations: readonly Reservation[],
 ): void {
-  storage.setItem('reserva-turno:reservations', JSON.stringify(reservations));
+  storage.setItem(reservationsKey, JSON.stringify(reservations));
 }
 
 function isReservation(value: unknown): value is Reservation {
@@ -30,7 +32,7 @@ function isReservation(value: unknown): value is Reservation {
 }
 
 export function loadReservations(storage: Pick<Storage, 'getItem'>): Reservation[] {
-  const stored = storage.getItem('reserva-turno:reservations');
+  const stored = storage.getItem(reservationsKey);
   if (stored === null) {
     return [];
   }
