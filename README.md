@@ -24,6 +24,10 @@ O ReservaTurno é uma aplicação web para gerenciar reservas de salas por data 
 - **GitHub Actions** para executar os testes em Linux, macOS e Windows, e **Codecov** para publicar os relatórios de cobertura.
 - **Cloudflare Pages** como plataforma prevista para publicação manual da aplicação.
 
+## Uso de IA
+
+A IA ajudou a levantar ideias para o sistema, sugerir cenários de teste e estruturar uma primeira versão da aplicação. Também auxiliou no desenvolvimento, com sugestões de implementação e ajustes no código.
+
 ## Instalação e execução local
 
 Use o Node.js 22, a mesma versão principal usada no GitHub Actions. Na raiz do repositório, execute:
@@ -57,3 +61,9 @@ npm run test:e2e
 ```
 
 No Linux, se faltarem bibliotecas do sistema, use `npx playwright install --with-deps chromium` na etapa de instalação. `npm run test:e2e` gera a versão de produção e o Playwright inicia automaticamente o servidor de prévia na porta `4173`.
+
+## Links do projeto
+
+- [Repositório no GitHub](https://github.com/joaovictorog/reserva-turno)
+- [Execuções no GitHub Actions](https://github.com/joaovictorog/reserva-turno/actions)
+- [Relatório de cobertura no Codecov](https://app.codecov.io/gh/joaovictorog/reserva-turno)
