@@ -45,6 +45,7 @@ function renderAgenda() {
           cancelRoomReservation(localStorage, reservation.id);
           renderAgenda();
           bookingStatus.textContent = 'Reserva cancelada.';
+          status.focus();
         } catch {
           bookingStatus.textContent = 'Não foi possível cancelar a reserva. Tente novamente.';
         }
@@ -66,6 +67,7 @@ filters.addEventListener('submit', (event) => {
 });
 
 const bookingForm = document.querySelector<HTMLFormElement>('#booking-form')!;
+const ownerField = bookingForm.querySelector<HTMLInputElement>('[name="owner"]')!;
 const bookingStatus = document.querySelector<HTMLParagraphElement>('#booking-status')!;
 
 filters.addEventListener('change', () => {
@@ -91,6 +93,7 @@ bookingForm.addEventListener('submit', (event) => {
     bookingStatus.textContent = 'Reserva confirmada.';
     bookingForm.reset();
     renderAgenda();
+    ownerField.focus();
   } catch (error) {
     bookingStatus.textContent = error instanceof Error
       ? error.message

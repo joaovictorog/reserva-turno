@@ -43,7 +43,7 @@ beforeEach(async () => {
       <select id="room-filter"></select>
       <input type="date" id="date-filter">
     </form>
-    <p id="agenda-status"></p>
+    <p id="agenda-status" tabindex="-1"></p>
     <div id="reservation-list"></div>
     <form id="booking-form">
       <input name="owner">
@@ -100,6 +100,14 @@ describe('disponibilidade na tela', () => {
 });
 
 describe('cadastro na tela', () => {
+  it('volta o foco ao responsável após cadastrar a reserva', () => {
+    document.querySelector<HTMLInputElement>('[name="endTime"]')!.focus();
+
+    book();
+
+    expect(document.activeElement).toBe(document.querySelector('[name="owner"]'));
+  });
+
   it('limpa a confirmação ao editar o responsável', () => {
     book();
     const status = document.querySelector('#booking-status')!;
@@ -155,6 +163,16 @@ describe('cadastro na tela', () => {
 });
 
 describe('cancelamento na tela', () => {
+  it('move o foco para o resumo da agenda após confirmar o cancelamento', () => {
+    book();
+    const cancelButton = document.querySelector<HTMLButtonElement>('#reservation-list button')!;
+    cancelButton.focus();
+
+    cancelButton.click();
+
+    expect(document.activeElement).toBe(document.querySelector('#agenda-status'));
+  });
+
   it('identifica a reserva antes de confirmar o cancelamento', () => {
     book();
 
