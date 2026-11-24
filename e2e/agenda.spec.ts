@@ -147,3 +147,37 @@ test('impede sobreposição e mantém a reserva original', async ({ page }) => {
   await expect(agenda.getByText('10:00 – 11:00 · João', { exact: true })).toBeVisible();
   await expect(page.getByLabel('Responsável', { exact: true })).toHaveValue('Maria');
 });
+
+test('consulta horários livre e ocupado sem alterar a agenda', async ({ page }) => {
+  await page.goto('/');
+  await page.getByLabel('Data', { exact: true }).fill('2026-12-01');
+  await page.getByLabel('Responsável', { exact: true }).fill('João');
+  const startTime = page.getByLabel('Início', { exact: true });
+  const endTime = page.getByLabel('Término', { exact: true });
+  await startTime.fill('10:00');
+  await endTime.fill('11:00');
+  await page.getByRole('button', { name: 'Reservar', exact: true }).click();
+
+  const agenda = page.getByRole('region', { name: 'Agenda da sala', exact: true });
+  const reservation = agenda.getByText('10:00 – 11:00 · João', { exact: true });
+  const cancelButtons = agenda.getByRole('button', { name: /Cancelar reserva/ });
+  await expect(reservation).toBeVisible();
+  await expect(cancelButtons).toHaveCount(1);
+
+  const checkAvailability = page.getByRole('button', { name: 'Verificar disponibilidade', exact: true });
+  await startTime.fill('11:00');
+  await endTime.fill('12:00');
+  await checkAvailability.click();
+
+  await expect(page.getByText('Sala disponível neste horário.', { exact: true })).toBeVisible();
+  await expect(reservation).toBeVisible();
+  await expect(cancelButtons).toHaveCount(1);
+
+  await startTime.fill('10:30');
+  await endTime.fill('11:30');
+  await checkAvailability.click();
+
+  await expect(page.getByText('Sala indisponível neste horário.', { exact: true })).toBeVisible();
+  await expect(reservation).toBeVisible();
+  await expect(cancelButtons).toHaveCount(1);
+});
