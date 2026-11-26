@@ -22,7 +22,7 @@ O ReservaTurno é uma aplicação web para gerenciar reservas de salas por data 
 - **Vitest e jsdom** para os testes unitários e de interface em um DOM simulado.
 - **Playwright** para os testes de ponta a ponta no Chromium.
 - **GitHub Actions** para executar os testes em Linux, macOS e Windows, e **Codecov** para publicar os relatórios de cobertura.
-- **Cloudflare Pages** como plataforma prevista para publicação manual da aplicação.
+- **Cloudflare Pages** para publicação automática pelo GitHub Actions após os testes da `main`.
 
 ## Uso de IA
 
@@ -66,4 +66,6 @@ No Linux, se faltarem bibliotecas do sistema, use `npx playwright install --with
 
 - [Repositório no GitHub](https://github.com/joaovictorog/reserva-turno)
 - [Execuções no GitHub Actions](https://github.com/joaovictorog/reserva-turno/actions)
-- [Relatório de cobertura no Codecov](https://app.codecov.io/gh/joaovictorog/reserva-turno)
+- [Tests aprovado para a versão publicada](https://github.com/joaovictorog/reserva-turno/actions/runs/45819156166)
+- [Relatório de cobertura no Codecov](https://app.codecov.io/github/joaovictorog/reserva-turno)
+- [Sistema em produção](https://reserva-turno.pages.dev/)

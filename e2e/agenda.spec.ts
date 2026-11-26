@@ -57,11 +57,10 @@ test('cancela uma reserva confirmada e libera o horário', async ({ page }) => {
   await page.getByRole('button', { name: 'Reservar', exact: true }).click();
   await expect(page.getByText('Reserva confirmada.', { exact: true })).toBeVisible();
 
-  page.once('dialog', async (dialog) => {
-    expect(dialog.message()).toBe('Cancelar a reserva de João às 10:00?');
-    await dialog.accept();
-  });
   await page.getByRole('button', { name: 'Cancelar reserva de João às 10:00', exact: true }).click();
+  const confirmation = page.getByRole('dialog', { name: 'Cancelar reserva?', exact: true });
+  await expect(confirmation.getByText('Cancelar a reserva de João às 10:00?', { exact: true })).toBeVisible();
+  await confirmation.getByRole('button', { name: 'Confirmar cancelamento', exact: true }).click();
 
   await expect(page.getByText('Reserva cancelada.', { exact: true })).toBeVisible();
   await expect(page.getByText('Nenhuma reserva para esta sala nesta data.')).toBeVisible();
@@ -88,15 +87,11 @@ test('mantém a reserva após desistir do cancelamento e recarregar', async ({ p
   const reservation = page.getByText('10:00 – 11:00 · João', { exact: true });
   await expect(reservation).toBeVisible();
 
-  const [dialogMessage] = await Promise.all([
-    page.waitForEvent('dialog').then(async (dialog) => {
-      await dialog.dismiss();
-      return dialog.message();
-    }),
-    page.getByRole('button', { name: 'Cancelar reserva de João às 10:00', exact: true }).click(),
-  ]);
-
-  expect(dialogMessage).toBe('Cancelar a reserva de João às 10:00?');
+  await page.getByRole('button', { name: 'Cancelar reserva de João às 10:00', exact: true }).click();
+  const confirmation = page.getByRole('dialog', { name: 'Cancelar reserva?', exact: true });
+  await expect(confirmation.getByText('Cancelar a reserva de João às 10:00?', { exact: true })).toBeVisible();
+  await confirmation.getByRole('button', { name: 'Manter reserva', exact: true }).click();
+  await expect(confirmation).not.toBeVisible();
   await expect(reservation).toBeVisible();
 
   await page.reload();

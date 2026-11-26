@@ -1,8 +1,8 @@
 # Publicação no Cloudflare Pages
 
-A publicação é iniciada manualmente após a conclusão do projeto. O workflow
-confere se o mesmo commit passou no workflow Tests, que executa os testes em
-Linux, macOS e Windows.
+A publicação é iniciada automaticamente após o workflow Tests aprovar um push na
+`main`. Os testes são executados em Linux, macOS e Windows. O deploy publica o
+mesmo commit aprovado e verifica se ele ainda é o mais recente da `main`.
 
 ## Configuração da conta
 
@@ -16,14 +16,15 @@ Linux, macOS e Windows.
 
 ## Publicação
 
-1. Aguarde o workflow Tests ficar verde no commit desejado da `main`.
-2. Abra Actions > Deploy to Cloudflare Pages > Run workflow e selecione `main`.
+1. Envie as alterações para a `main` e aguarde o workflow Tests ficar verde.
+2. Acompanhe o workflow Deploy to Cloudflare Pages, iniciado automaticamente.
 3. Aguarde a conclusão e abra o endereço informado pelo Cloudflare.
 4. Verifique cadastro, consulta, cancelamento e recuperação após recarregar.
 5. Registre o endereço público no README e na entrega do Moodle.
 
 O build utiliza `npm ci` e `npm run build`. O diretório publicado é `dist`.
-O botão Run workflow permite publicar novamente após alterações futuras.
+Para repetir uma publicação manualmente, abra Actions > Deploy to Cloudflare Pages >
+Run workflow e selecione `main`. O commit precisa estar aprovado no workflow Tests.
 
 As reservas ficam no armazenamento local de cada navegador.
 

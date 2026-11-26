@@ -16,9 +16,9 @@ Duração prevista de 4 minutos e 45 segundos.
 ## Checklist do enunciado
 
 - [x] O README apresenta os integrantes, o sistema, as tecnologias, as contribuições da IA e os comandos de teste.
-- [x] A suíte Vitest passou com 178 testes em 13 arquivos, incluindo testes unitários e de interface. O enunciado exige pelo menos 50 testes unitários.
-- [x] Os 11 E2Es passaram no Chromium. O enunciado exige pelo menos 5.
-- [x] A cobertura local superou 80% nas quatro métricas. Foram 98,70% de instruções, 94,11% de ramificações, 97,43% de funções e 98,65% de linhas.
+- [x] A suíte Vitest passou com 180 testes em 13 arquivos, incluindo testes unitários e de interface. O enunciado exige pelo menos 50 testes unitários.
+- [x] Os 13 E2Es passaram no Chromium, incluindo layout responsivo e navegação pelo teclado no modal de cancelamento. O enunciado exige pelo menos 5.
+- [x] A cobertura local superou 80% nas quatro métricas. Foram 97,61% de instruções, 91,91% de ramificações, 95,83% de funções e 97,53% de linhas.
 - [x] O build de produção passou antes dos E2Es.
 - [x] O GitHub Actions está configurado para executar os testes e medir a cobertura em Linux, macOS e Windows, com envio do relatório ao Codecov.
 - [x] O histórico local já tem 50 commits antes deste documento, com mudanças pequenas e mensagens descritivas.
@@ -26,17 +26,19 @@ Duração prevista de 4 minutos e 45 segundos.
 ## Pendências antes da submissão
 
 - [ ] Confirmar os nomes das ferramentas de IA usadas e registrá-los no README e no vídeo.
-- [ ] Enviar os commits ao GitHub e confirmar que o workflow **Tests** passou nos três sistemas operacionais e publicou o relatório no Codecov para o commit da entrega.
-- [ ] Configurar a conta e publicar a aplicação seguindo o [guia do Cloudflare Pages](cloudflare.md). Verificar as funcionalidades na URL pública e incluí-la no README.
+- [x] Enviar os commits ao GitHub e confirmar que o workflow **Tests** passou para o commit da versão publicada.
+- [ ] Conferir o relatório no Codecov para o commit da entrega.
+- [x] Configurar a conta, publicar a aplicação no Cloudflare Pages e incluir a URL no README.
+- [ ] Verificar cadastro, consulta, cancelamento e recuperação na URL pública.
 - [ ] Gravar o vídeo com até cinco minutos, publicá-lo no YouTube e testar o acesso ao link.
 - [ ] Enviar os cinco links pelo Moodle.
 
 | Link da entrega | Endereço ou ação |
 | --- | --- |
-| Sistema em produção | Copiar a URL pública após a publicação no Cloudflare Pages. |
+| Sistema em produção | [ReservaTurno em produção](https://reserva-turno.pages.dev/) |
 | Repositório | [ReservaTurno no GitHub](https://github.com/joaovictorog/reserva-turno) |
-| Build no GitHub Actions | Abrir [GitHub Actions](https://github.com/joaovictorog/reserva-turno/actions) e copiar o link direto da execução mais recente do workflow **Tests** concluída com sucesso. |
-| Relatório de cobertura | [ReservaTurno no Codecov](https://app.codecov.io/gh/joaovictorog/reserva-turno) |
+| Build no GitHub Actions | [Tests aprovado para a versão publicada](https://github.com/joaovictorog/reserva-turno/actions/runs/45819156166) |
+| Relatório de cobertura | [ReservaTurno no Codecov](https://app.codecov.io/github/joaovictorog/reserva-turno) |
 | Vídeo | Copiar o link do YouTube após a publicação. |
 
 [Enunciado do trabalho](https://github.com/andrehora/tp-software-testing/blob/main/README.md)

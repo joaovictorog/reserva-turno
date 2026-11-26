@@ -1,6 +1,11 @@
 name: Deploy to Cloudflare Pages
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: [Tests]
+    types: [completed]
+    branches: [main]
 
 permissions:
   contents: read
@@ -12,8 +17,15 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.ref == 'refs/heads/main'
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-latest
+    env:
+      DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
     steps:
       - name: Verify successful tests for this commit
         uses: actions/github-script@v7
@@ -22,7 +34,7 @@ jobs:
             const { data } = await github.rest.actions.listWorkflowRuns({
               ...context.repo,
               workflow_id: 'tests.yml',
-              head_sha: context.sha,
+              head_sha: process.env.DEPLOY_SHA,
               branch: 'main',
               event: 'push',
               per_page: 1,
@@ -31,7 +43,16 @@ jobs:
             if (!run || run.status !== 'completed' || run.conclusion !== 'success') {
               core.setFailed('Aguarde o workflow Tests concluir com sucesso neste commit.');
             }
+            const { data: branch } = await github.rest.repos.getBranch({
+              ...context.repo,
+              branch: 'main',
+            });
+            if (branch.commit.sha !== process.env.DEPLOY_SHA) {
+              core.setFailed('Existe um commit mais recente na main. Aguarde os testes dele.');
+            }
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.DEPLOY_SHA }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22

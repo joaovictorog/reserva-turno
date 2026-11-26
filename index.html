@@ -3,41 +3,49 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#141618">
     <meta name="description" content="Agenda de reservas de salas por data e horário.">
     <title>ReservaTurno</title>
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="./">ReservaTurno</a>
-      <span>Agenda de salas</span>
+      <a class="brand" href="./">
+        <span class="brand-mark" data-icon="brand" aria-hidden="true"></span>
+        Reserva<span class="brand-accent">Turno</span>
+      </a>
+      <span class="header-context">Agenda de salas</span>
     </header>
     <main>
       <h1>Reservas</h1>
       <form class="filters" id="filters">
-        <div class="field">
+        <div class="field room-field">
           <label for="room-filter">Sala</label>
-          <select name="roomId" id="room-filter"></select>
+          <div class="select-wrap">
+            <select name="roomId" id="room-filter"></select>
+            <span data-icon="chevron" aria-hidden="true"></span>
+          </div>
         </div>
-        <label>Data<input type="date" name="date" id="date-filter" required></label>
-        <button type="submit">Consultar</button>
+        <label class="date-field">Data<input type="date" name="date" id="date-filter" required></label>
+        <button class="consult-button" type="submit"><span data-icon="search" aria-hidden="true"></span>Consultar</button>
       </form>
       <div class="workspace">
-      <section class="booking-panel" aria-labelledby="booking-title">
-        <h2 id="booking-title">Nova reserva</h2>
-        <form class="filters" id="booking-form">
-          <label class="owner-field">Responsável<input name="owner" required autocomplete="name"></label>
-          <label>Início<input name="startTime" type="time" required></label>
-          <label>Término<input name="endTime" type="time" required></label>
-          <button type="submit">Reservar</button>
-          <button type="button" id="check-availability">Verificar disponibilidade</button>
-        </form>
-        <p id="booking-status" role="status"></p>
-      </section>
-      <section class="agenda-panel" aria-label="Agenda da sala">
-        <h2>Agenda</h2>
-        <p id="agenda-status" role="status" tabindex="-1">Selecione uma sala e uma data para consultar.</p>
-        <div id="reservation-list"></div>
-      </section>
+        <section class="booking-panel" aria-labelledby="booking-title">
+          <h2 id="booking-title"><span data-icon="booking" aria-hidden="true"></span>Nova reserva</h2>
+          <form class="filters" id="booking-form">
+            <label class="owner-field">Responsável<input name="owner" placeholder="Nome completo" required autocomplete="name"></label>
+            <label>Início<input name="startTime" type="time" required></label>
+            <label>Término<input name="endTime" type="time" required></label>
+            <button type="submit"><span data-icon="add" aria-hidden="true"></span>Reservar</button>
+            <button type="button" id="check-availability"><span data-icon="availability" aria-hidden="true"></span>Verificar disponibilidade</button>
+          </form>
+          <p id="booking-status" role="status"></p>
+        </section>
+        <section class="agenda-panel" aria-label="Agenda da sala">
+          <h2><span data-icon="agenda" aria-hidden="true"></span>Agenda</h2>
+          <div class="agenda-empty" aria-hidden="true"><span data-icon="empty"></span></div>
+          <p id="agenda-status" role="status" tabindex="-1">Selecione uma sala e uma data para consultar.</p>
+          <div id="reservation-list"></div>
+        </section>
       </div>
     </main>
     <script type="module" src="/src/main.ts"></script>

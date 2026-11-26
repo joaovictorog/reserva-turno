@@ -33,9 +33,27 @@ function editBookingField(name: string, value: string) {
   field.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
+function cancelBooking() {
+  document.querySelector<HTMLButtonElement>('#reservation-list button')!.click();
+  document.querySelector<HTMLButtonElement>('.confirm-cancellation')!.click();
+}
+
 beforeEach(async () => {
   vi.restoreAllMocks();
-  vi.spyOn(window, 'confirm').mockReturnValue(true);
+  Object.defineProperties(HTMLDialogElement.prototype, {
+    showModal: {
+      configurable: true,
+      value(this: HTMLDialogElement) { this.setAttribute('open', ''); },
+    },
+    close: {
+      configurable: true,
+      value(this: HTMLDialogElement, result = '') {
+        this.returnValue = result;
+        this.removeAttribute('open');
+        this.dispatchEvent(new Event('close'));
+      },
+    },
+  });
   vi.resetModules();
   localStorage.clear();
   document.body.innerHTML = `
@@ -100,6 +118,20 @@ describe('disponibilidade na tela', () => {
 });
 
 describe('cadastro na tela', () => {
+  it('oculta a notificação de sucesso após alguns segundos', () => {
+    vi.useFakeTimers();
+    try {
+      book();
+      const toast = document.querySelector<HTMLElement>('.feedback-toast')!;
+      expect(toast.hidden).toBe(false);
+      expect(toast.textContent).toBe('Sua reserva foi criada com sucesso.');
+      vi.advanceTimersByTime(4500);
+      expect(toast.hidden).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('volta o foco ao responsável após cadastrar a reserva', () => {
     document.querySelector<HTMLInputElement>('[name="endTime"]')!.focus();
 
@@ -163,12 +195,27 @@ describe('cadastro na tela', () => {
 });
 
 describe('cancelamento na tela', () => {
+  it('mantém a navegação por Tab dentro do modal', () => {
+    book();
+    document.querySelector<HTMLButtonElement>('#reservation-list button')!.click();
+    const dialog = document.querySelector('dialog')!;
+    const first = dialog.querySelector<HTMLButtonElement>('.keep-reservation')!;
+    const last = dialog.querySelector<HTMLButtonElement>('.confirm-cancellation')!;
+
+    last.focus();
+    dialog.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', cancelable: true }));
+    expect(document.activeElement).toBe(first);
+
+    dialog.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, cancelable: true }));
+    expect(document.activeElement).toBe(last);
+  });
+
   it('move o foco para o resumo da agenda após confirmar o cancelamento', () => {
     book();
     const cancelButton = document.querySelector<HTMLButtonElement>('#reservation-list button')!;
     cancelButton.focus();
 
-    cancelButton.click();
+    cancelBooking();
 
     expect(document.activeElement).toBe(document.querySelector('#agenda-status'));
   });
@@ -178,14 +225,17 @@ describe('cancelamento na tela', () => {
 
     document.querySelector<HTMLButtonElement>('#reservation-list button')!.click();
 
-    expect(window.confirm).toHaveBeenCalledWith('Cancelar a reserva de João às 10:00?');
+    expect(document.querySelector('dialog')!.hasAttribute('open')).toBe(true);
+    expect(document.querySelector('#confirmation-message')!.textContent)
+      .toBe('Cancelar a reserva de João às 10:00?');
+    expect(loadReservations(localStorage)).toHaveLength(1);
   });
 
   it('mantém a reserva quando o usuário desiste do cancelamento', () => {
     book();
-    vi.mocked(window.confirm).mockReturnValue(false);
 
     document.querySelector<HTMLButtonElement>('#reservation-list button')!.click();
+    document.querySelector<HTMLButtonElement>('.keep-reservation')!.click();
 
     expect(loadReservations(localStorage)).toHaveLength(1);
     expect(document.querySelector('#reservation-list')!.textContent).toContain('João');
@@ -194,7 +244,7 @@ describe('cancelamento na tela', () => {
   it('remove a reserva da tela e do armazenamento', () => {
     book();
 
-    document.querySelector<HTMLButtonElement>('#reservation-list button')!.click();
+    cancelBooking();
 
     expect(loadReservations(localStorage)).toEqual([]);
     expect(document.querySelector('#reservation-list')!.children).toHaveLength(0);
@@ -208,7 +258,7 @@ describe('cancelamento na tela', () => {
     ]);
     consult();
 
-    document.querySelector<HTMLButtonElement>('#reservation-list button')!.click();
+    cancelBooking();
 
     expect(loadReservations(localStorage).map((reservation) => reservation.owner)).toEqual(['Maria']);
     expect(document.querySelector('#reservation-list')!.textContent).toContain('Maria');
@@ -220,7 +270,7 @@ describe('cancelamento na tela', () => {
       throw new Error('Gravação bloqueada.');
     });
     try {
-      document.querySelector<HTMLButtonElement>('#reservation-list button')!.click();
+      cancelBooking();
       expect(loadReservations(localStorage)).toHaveLength(1);
       expect(document.querySelector('#reservation-list button')).not.toBeNull();
       expect(document.querySelector('#booking-status')!.textContent)
