@@ -76,6 +76,36 @@ test('cancela uma reserva confirmada e libera o horário', async ({ page }) => {
   await expect(page.getByText('10:00 – 11:00 · Maria', { exact: true })).toBeVisible();
 });
 
+test('mantém a reserva após desistir do cancelamento e recarregar', async ({ page }) => {
+  const date = '2026-12-01';
+  await page.goto('/');
+  await page.getByLabel('Data', { exact: true }).fill(date);
+  await page.getByLabel('Responsável', { exact: true }).fill('João');
+  await page.getByLabel('Início', { exact: true }).fill('10:00');
+  await page.getByLabel('Término', { exact: true }).fill('11:00');
+  await page.getByRole('button', { name: 'Reservar', exact: true }).click();
+
+  const reservation = page.getByText('10:00 – 11:00 · João', { exact: true });
+  await expect(reservation).toBeVisible();
+
+  const [dialogMessage] = await Promise.all([
+    page.waitForEvent('dialog').then(async (dialog) => {
+      await dialog.dismiss();
+      return dialog.message();
+    }),
+    page.getByRole('button', { name: 'Cancelar reserva de João às 10:00', exact: true }).click(),
+  ]);
+
+  expect(dialogMessage).toBe('Cancelar a reserva de João às 10:00?');
+  await expect(reservation).toBeVisible();
+
+  await page.reload();
+  await page.getByLabel('Data', { exact: true }).fill(date);
+  await page.getByRole('button', { name: 'Consultar', exact: true }).click();
+
+  await expect(reservation).toBeVisible();
+});
+
 test('filtra a agenda por sala e data', async ({ page }) => {
   await page.goto('/');
   await page.getByLabel('Data', { exact: true }).fill('2026-12-01');
